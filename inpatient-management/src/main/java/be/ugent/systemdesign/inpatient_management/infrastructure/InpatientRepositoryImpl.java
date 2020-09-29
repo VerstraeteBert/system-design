@@ -1,6 +1,8 @@
 package be.ugent.systemdesign.inpatient_management.infrastructure;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -38,5 +40,27 @@ public abstract class InpatientRepositoryImpl implements InpatientRepository {
 			.bedId(patient.getBedId())
 			.status(InpatientStatus.valueOf(patient.getStatus()))
 			.build();
+	}
+	
+	public Inpatient findOne(Integer id) {
+		Optional<InpatientDataModel> data_model_res = repo.findById(id);
+		if (data_model_res.isPresent()) {
+			return datamodel_to_model(data_model_res.get());
+		} else {
+			return null;
+		}
+	}
+	
+	public void save(Inpatient _p) {
+		repo.save(model_to_datamodel(_p));
+	}
+	
+	public List<Inpatient> findAllThatAreRegisteredWithLastname(String lastName) {
+		List<InpatientDataModel> res_data = repo.findInpatientsByLastNameAndStatus(lastName, InpatientStatus.REGISTERED.toString());
+		List<Inpatient> res_model = new ArrayList<Inpatient>(res_data.size());
+		
+		res_data.forEach(datamodel -> res_model.add(datamodel_to_model(datamodel)));
+		
+		return res_model;
 	}
 }

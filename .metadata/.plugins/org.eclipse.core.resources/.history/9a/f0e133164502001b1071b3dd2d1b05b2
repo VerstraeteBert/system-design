@@ -1,5 +1,0 @@
-package be.ugent.systemdesign.inpatient_management.infrastructuree;
-
-public class InpatientDataModelJPARepository {
-
-}
