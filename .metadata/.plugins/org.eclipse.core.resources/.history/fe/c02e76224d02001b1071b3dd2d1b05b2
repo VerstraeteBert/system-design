@@ -1,0 +1,19 @@
+package be.ugent.systemdesign.inpatient_management.infrastructure;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
+import be.ugent.systemdesign.inpatient_management.domain.Inpatient;
+import be.ugent.systemdesign.inpatient_management.domain.InpatientRepository;
+
+@Repository
+public abstract class InpatientRepositoryImpl implements InpatientRepository {
+	@Autowired
+	private InpatientDataModelJPARepository repo; 
+	
+	public InpatientDataModel map_to_datamodel(Inpatient patient) {
+		return null;
+	}
+}

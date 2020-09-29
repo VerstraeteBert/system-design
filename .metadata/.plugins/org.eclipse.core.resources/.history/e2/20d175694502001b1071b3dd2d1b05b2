@@ -1,0 +1,28 @@
+package be.ugent.systemdesign.inpatient_management;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+
+import be.ugent.systemdesign.inpatient_management.infrastructure
+
+@SpringBootApplication
+public class InpatientManagementApplication {
+
+	private static final Logger log = LoggerFactory.getLogger(InpatientManagementApplication.class);
+	
+	public static void main(String[] args) {
+		SpringApplication.run(InpatientManagementApplication.class, args);
+	}
+	
+	@Bean
+	CommandLineRunner testRepository(InpatientDataModelJPARepository.class) {
+		return (args) -> {
+			log.info("Testing Fetches")
+		};
+	};
+
+}
