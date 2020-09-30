@@ -25,7 +25,6 @@ public class Inpatient {
 	
 	
 	public Inpatient(Integer patientid, String firstName, String lastName, LocalDate dateOfBirth, String treatmentCode, String physicianId, String bedId){
-		
 		this.patientId = patientid;
 		this.firstName = firstName;
 		this.lastName = lastName;

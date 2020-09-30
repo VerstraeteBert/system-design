@@ -13,11 +13,11 @@ import be.ugent.systemdesign.inpatient_management.domain.InpatientStatus;
 import be.ugent.systemdesign.inpatient_management.domain.Treatment;
 
 @Repository
-public abstract class InpatientRepositoryImpl implements InpatientRepository {
+public class InpatientRepositoryImpl implements InpatientRepository {
 	@Autowired
 	private InpatientDataModelJPARepository repo; 
 	
-	public InpatientDataModel model_to_datamodel(Inpatient patient) {
+	private InpatientDataModel model_to_datamodel(Inpatient patient) {
 		return new InpatientDataModel(
 				patient.getPatientId(),
 				patient.getFirstName(),
@@ -30,7 +30,7 @@ public abstract class InpatientRepositoryImpl implements InpatientRepository {
 		);
 	}
 	
-	public Inpatient datamodel_to_model(InpatientDataModel patient) {
+	private Inpatient datamodel_to_model(InpatientDataModel patient) {
 		return Inpatient.builder()
 			.patientId(patient.getPatientId())
 			.firstName(patient.getFirstName())
@@ -44,11 +44,7 @@ public abstract class InpatientRepositoryImpl implements InpatientRepository {
 	
 	public Inpatient findOne(Integer id) {
 		Optional<InpatientDataModel> data_model_res = repo.findById(id);
-		if (data_model_res.isPresent()) {
-			return datamodel_to_model(data_model_res.get());
-		} else {
-			return null;
-		}
+		return data_model_res.map(this::datamodel_to_model).orElse(null);
 	}
 	
 	public void save(Inpatient _p) {
