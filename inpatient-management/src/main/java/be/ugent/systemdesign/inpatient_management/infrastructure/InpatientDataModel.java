@@ -16,7 +16,7 @@ public class InpatientDataModel {
 	private Integer patientId;
 	private String firstName, lastName;
 	private String bedId;
-	private LocalDate dateOfBirth;
+	private String dateOfBirth;
 	
 	private String status;		
 	private boolean consentReceived;
@@ -26,7 +26,7 @@ public class InpatientDataModel {
 	
 	private InpatientDataModel() {};
 	
-	public InpatientDataModel(Integer patientid, String firstName, String lastName, LocalDate dateOfBirth, String treatmentCode, String physicianId, String bedId, String status){
+	public InpatientDataModel(Integer patientid, String firstName, String lastName, String dateOfBirth, String treatmentCode, String physicianId, String bedId, String status){
 		
 		this.patientId = patientid;
 		this.firstName = firstName;

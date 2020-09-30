@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import be.ugent.systemdesign.inpatient_management.domain.Inpatient;
 import be.ugent.systemdesign.inpatient_management.infrastructure.InpatientRepositoryImpl;
+import org.springframework.stereotype.Service;
 
+@Service
 public class InpatientServiceImpl implements InpatientService {
 	@Autowired
 	private InpatientRepositoryImpl repo;

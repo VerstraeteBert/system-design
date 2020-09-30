@@ -1,5 +1,6 @@
 package be.ugent.systemdesign.inpatient_management.infrastructure;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -22,7 +23,7 @@ public class InpatientRepositoryImpl implements InpatientRepository {
 				patient.getPatientId(),
 				patient.getFirstName(),
 				patient.getLastName(),
-				patient.getDateOfBirth(),
+				patient.getDateOfBirth().toString(),
 				patient.getTreatment().getTreatmentCode(),
 				patient.getTreatment().getPhysician(),
 				patient.getBedId(),
@@ -35,7 +36,7 @@ public class InpatientRepositoryImpl implements InpatientRepository {
 			.patientId(patient.getPatientId())
 			.firstName(patient.getFirstName())
 			.lastName(patient.getLastName())
-			.dateOfBirth(patient.getDateOfBirth())
+			.dateOfBirth(LocalDate.parse(patient.getDateOfBirth()))
 			.treatment(new Treatment(patient.getTreatmentCode(), patient.getPhysician()))
 			.bedId(patient.getBedId())
 			.status(InpatientStatus.valueOf(patient.getStatus()))

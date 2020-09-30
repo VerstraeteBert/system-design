@@ -1,5 +1,6 @@
 package be.ugent.systemdesign.inpatient_management;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,6 +49,7 @@ public class InpatientManagementApplication {
 	@Bean
 	CommandLineRunner testRepositoryImpl(InpatientRepositoryImpl repo) {
 		return (args) -> {
+			log.info(LocalDate.now().toString());
 			log.info("Testing repo impl");
 			Inpatient pat = repo.findOne(1);
 			if (pat != null) {
@@ -64,6 +66,7 @@ public class InpatientManagementApplication {
 				.bedId("1")
 				.status(InpatientStatus.REGISTERED)
 				.treatment(new Treatment("1", "1"))
+				.dateOfBirth(LocalDate.now())
 				.build();
 			
 			repo.save(pat);
@@ -73,5 +76,5 @@ public class InpatientManagementApplication {
 		};
 	}
 
-	// TODO test InpatientServiceImpl
+	// TODO test InpatientServiceImpl (geen goesting)
 }
