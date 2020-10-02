@@ -2,90 +2,88 @@ package be.ugent.systemdesign.inpatient_management.infrastructure;
 
 import be.ugent.systemdesign.inpatient_management.application.InpatientService;
 import be.ugent.systemdesign.inpatient_management.application.Response;
-import be.ugent.systemdesign.inpatient_management.domain.InpatientStatus;
-import be.ugent.systemdesign.inpatient_management.domain.OnlyResponsiblePhysicianCanGivePermissionException;
+import be.ugent.systemdesign.inpatient_management.application.ResponseStatus;
+import be.ugent.systemdesign.inpatient_management.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import be.ugent.systemdesign.inpatient_management.domain.Inpatient;
 import be.ugent.systemdesign.inpatient_management.infrastructure.InpatientRepositoryImpl;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+import java.time.LocalDate;
+
 @Service
+@Transactional
 public class InpatientServiceImpl implements InpatientService {
 	@Autowired
-	private InpatientRepositoryImpl repo;
+	InpatientRepository inpatientRepo;
 
-	public Response registerInpatient(Inpatient patient) {
-		repo.save(patient);
-
-		return new Response(true, "Patient succesfully registered");
-	}
-
-	public Response registerInpatientCompletedIntake(int patientId) {
-		Inpatient patient = repo.findOne(patientId);
-		if (patient == null) {
-			return new Response(false, "Inpatient not found");
-		}
-
-
-		patient.discharge();
-		if (patient.getStatus() != InpatientStatus.DISCHARGED) {
-			return new Response(false, "Inpatient did not have permission to be discharges");
-		}
-
-		repo.save(patient);
-		
-		return new Response(true, "Sucessfully registered inpatient completed intake");
-	}
-
-	public Response registerInpatientParentalConsent(int patientId) {
-		Inpatient patient = repo.findOne(patientId);
-		if (patient == null) {
-			return new Response(false, "Inpatient not found");
-		}
-
-		if (!patient.isConsentReceived()) {
-			patient.receivesConsentFromParents();
-			repo.save(patient);
-		}
-
-		return new Response(true, "Sucessfully registered consent from parents");
-	}
-
-	public Response registerInpatientDischargePermission(int patientId, String physician_id) {
-		Inpatient patient = repo.findOne(patientId);
-		if (patient == null) {
-			return new Response(false, "Inpatient not found");
-		}
-
-		if (patient.getStatus() == InpatientStatus.DISCHARGEPERMITTED) {
-			return new Response(true, "Discharge permission sucessfully registered");
-		}
+	@Override
+	public Response registerInpatient(String patientId, String firstName, String lastName, LocalDate dateOfBirth,
+									  String treatmentCode, String physicianId, String bedId) {
 
 		try {
-			patient.receivesMedicalPermissionToDischargeFrom(physician_id);
-		} catch (OnlyResponsiblePhysicianCanGivePermissionException excep) {
-			return new Response(false, "Only responsible physician can give discharge permission");
+			Inpatient p = new Inpatient(Integer.parseInt(patientId), firstName, lastName, dateOfBirth, treatmentCode, physicianId, bedId);
+			inpatientRepo.save(p);
+		} catch(InpatientRegisteredForOneDayTreatmentException e) {
+			return new Response(ResponseStatus.FAIL,"Patients with one-day treatment cannot be registerd as inpatient");
+		} catch(RuntimeException e) {
+			return new Response(ResponseStatus.FAIL,"Patient could not be registered");
 		}
-
-		repo.save(patient);
-
-		return new Response(true, "Discharge permission sucessfully registered");
+		return new Response(ResponseStatus.SUCCESS,"id: "+patientId);
 	}
 
-	public Response registerInpatientLAMA(int patientId) {
-		Inpatient patient = repo.findOne(patientId);
-		if (patient == null) {
-			return new Response(false, "Inpatient not found");
+	@Override
+	public Response registerIntakeCompleted(String patientId) {
+		try {
+			Inpatient p = inpatientRepo.findOne(Integer.parseInt(patientId));
+			p.receivesConsentFromParents();
+			inpatientRepo.save(p);
+		} catch(RuntimeException e) {
+			return new Response(ResponseStatus.FAIL,"id "+patientId);
 		}
 
-		if (patient.getStatus() == InpatientStatus.LAMA) {
-			return new Response(true, "LAMA sucessfully registered");
+		return new Response(ResponseStatus.SUCCESS,"id "+patientId);
+
+	}
+
+	@Override
+	public Response givePermissionToDismiss(String patientId, String physicianId) {
+
+		try {
+			Inpatient p = inpatientRepo.findOne(Integer.parseInt(patientId));
+			p.receivesMedicalPermissionToDischargeFrom(physicianId);
+			inpatientRepo.save(p);
+		} catch(OnlyResponsiblePhysicianCanGivePermissionException e) {
+			return new Response(ResponseStatus.FAIL,"Only responsible physician can give permission");
+		} catch(RuntimeException e) {
+			return new Response(ResponseStatus.FAIL,"Could not register permission");
 		}
+		return new Response(ResponseStatus.SUCCESS,"");
+	}
 
-		patient.leavesAgainstMedicalAdvice();
-		repo.save(patient);
+	@Override
+	public Response noteLeftAgainstMedicalAdvice(String patientId) {
+		try {
+			Inpatient p = inpatientRepo.findOne(Integer.parseInt(patientId));
+			p.leavesAgainstMedicalAdvice();
+			inpatientRepo.save(p);
+		} catch(RuntimeException e) {
+			return new Response(ResponseStatus.FAIL,"Could not register lama status.");
+		}
+		return new Response(ResponseStatus.SUCCESS,"");
 
-		return new Response(true, "LAMA sucessfully registered");
+	}
+
+	@Override
+	public Response registerParentConsent(String patientId) {
+		try {
+			Inpatient p = inpatientRepo.findOne(Integer.parseInt(patientId));
+			p.inform();
+			inpatientRepo.save(p);
+		} catch(RuntimeException e) {
+			return new Response(ResponseStatus.FAIL,"Could not register completion of intake procedure.");
+		}
+		return new Response(ResponseStatus.SUCCESS,"");
 	}
 }

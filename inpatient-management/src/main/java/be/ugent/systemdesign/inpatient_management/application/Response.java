@@ -3,13 +3,12 @@ package be.ugent.systemdesign.inpatient_management.application;
 import lombok.Getter;
 
 public class Response {
-	@Getter
-	private Boolean successful;
-	@Getter
-	private String message;
+
+	public final String message;
+	public final ResponseStatus status;
 	
-	public Response(Boolean success, String message) {
-		this.successful = success;
+	public Response(ResponseStatus status, String message) {
+		this.status = status;
 		this.message = message;
 	}
 }

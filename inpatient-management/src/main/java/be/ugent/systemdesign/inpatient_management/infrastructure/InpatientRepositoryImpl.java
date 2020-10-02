@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -23,11 +24,11 @@ public class InpatientRepositoryImpl implements InpatientRepository {
 				patient.getPatientId(),
 				patient.getFirstName(),
 				patient.getLastName(),
-				patient.getDateOfBirth().toString(),
-				patient.getTreatment().getTreatmentCode(),
-				patient.getTreatment().getPhysician(),
+				new Treatment(patient.getTreatment().getTreatmentCode(), patient.getTreatment().getPhysician()),
 				patient.getBedId(),
-				patient.getStatus().toString()
+				patient.getDateOfBirth(),
+				patient.getStatus(),
+				patient.isConsentReceived()
 		);
 	}
 	
@@ -36,8 +37,11 @@ public class InpatientRepositoryImpl implements InpatientRepository {
 			.patientId(patient.getPatientId())
 			.firstName(patient.getFirstName())
 			.lastName(patient.getLastName())
-			.dateOfBirth(LocalDate.parse(patient.getDateOfBirth()))
-			.treatment(new Treatment(patient.getTreatmentCode(), patient.getPhysician()))
+			.dateOfBirth(patient.getDateOfBirth())
+			.treatment(Treatment.builder()
+					.treatmentCode(patient.getTreatmentCode())
+					.physician(patient.getTreatmentPhysician())
+					.build())
 			.bedId(patient.getBedId())
 			.status(InpatientStatus.valueOf(patient.getStatus()))
 			.build();
@@ -53,11 +57,9 @@ public class InpatientRepositoryImpl implements InpatientRepository {
 	}
 	
 	public List<Inpatient> findAllThatAreRegisteredWithLastname(String lastName) {
-		List<InpatientDataModel> res_data = repo.findInpatientsByLastNameAndStatus(lastName, InpatientStatus.REGISTERED.toString());
-		List<Inpatient> res_model = new ArrayList<Inpatient>(res_data.size());
-		
-		res_data.forEach(datamodel -> res_model.add(datamodel_to_model(datamodel)));
-		
-		return res_model;
+		return repo.findInpatientsByLastNameAndStatus(lastName, InpatientStatus.REGISTERED.name())
+				.stream()
+				.map(this::datamodel_to_model)
+				.collect(Collectors.toList());
 	}
 }

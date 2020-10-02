@@ -69,10 +69,7 @@ public class Inpatient {
 			return false;
 		}
 		final long age = java.time.temporal.ChronoUnit.YEARS.between(dateOfBirth, LocalDate.now());
-		if(age < 18 && !this.consentReceived){
-			return false;
-		}
-		return true;
+		return age >= 18 || this.consentReceived;
 	}
 	
 }

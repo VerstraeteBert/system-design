@@ -5,38 +5,47 @@ import java.time.LocalDate;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 
+import be.ugent.systemdesign.inpatient_management.domain.InpatientStatus;
+import be.ugent.systemdesign.inpatient_management.domain.Treatment;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+
 @Entity
-@Getter
 @Setter
+@Getter
+@NoArgsConstructor
 public class InpatientDataModel {
+
 	@Id
-	private Integer patientId;
-	private String firstName, lastName;
+	@Getter private Integer patientId;
+
+	private String firstName;
+	private String lastName;
+
 	private String bedId;
-	private String dateOfBirth;
-	
-	private String status;		
+	private LocalDate dateOfBirth;
+
+	private String status;
 	private boolean consentReceived;
-	
+
 	private String treatmentCode;
-	private String physician;
-	
-	private InpatientDataModel() {};
-	
-	public InpatientDataModel(Integer patientid, String firstName, String lastName, String dateOfBirth, String treatmentCode, String physicianId, String bedId, String status){
-		
-		this.patientId = patientid;
+	private String treatmentPhysician;
+
+	public InpatientDataModel(Integer patientId, String firstName, String lastName, Treatment treatment, String bedId,
+							  LocalDate dateOfBirth, InpatientStatus status, boolean consentReceived) {
+		this.patientId = patientId;
 		this.firstName = firstName;
 		this.lastName = lastName;
+		this.bedId = bedId;
 		this.dateOfBirth = dateOfBirth;
-		this.bedId = bedId;	
-
-		this.physician = physicianId;
-		this.treatmentCode = treatmentCode;
-		
-		this.status = status;
+		this.status = status.name();
+		this.consentReceived = consentReceived;
+		this.treatmentCode = treatment.getTreatmentCode();
+		this.treatmentPhysician = treatment.getPhysician();
 	}
+
+
+
 }

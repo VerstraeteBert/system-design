@@ -16,7 +16,7 @@ public class InpatientQueryImpl implements InpatientQuery {
     private InpatientDataModelJPARepository repo;
 
     public InpatientReadModel datamodel_to_readmodel(InpatientDataModel dataModel) {
-        return new InpatientReadModel(dataModel.getFirstName(), dataModel.getLastName(), LocalDate.parse(dataModel.getDateOfBirth()), dataModel.getBedId());
+        return new InpatientReadModel(dataModel.getFirstName(), dataModel.getLastName(), dataModel.getDateOfBirth(), dataModel.getBedId());
     }
 
     public List<InpatientReadModel> generateInpatientReport(InpatientStatus status) {

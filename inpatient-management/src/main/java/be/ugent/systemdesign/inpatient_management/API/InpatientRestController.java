@@ -1,10 +1,8 @@
 package be.ugent.systemdesign.inpatient_management.API;
 
-import be.ugent.systemdesign.inpatient_management.application.InpatientReadModel;
-import be.ugent.systemdesign.inpatient_management.application.Response;
+import be.ugent.systemdesign.inpatient_management.application.*;
+import be.ugent.systemdesign.inpatient_management.application.ResponseStatus;
 import be.ugent.systemdesign.inpatient_management.domain.InpatientStatus;
-import be.ugent.systemdesign.inpatient_management.infrastructure.InpatientQueryImpl;
-import be.ugent.systemdesign.inpatient_management.infrastructure.InpatientServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +15,10 @@ import java.util.stream.Collectors;
 @RequestMapping(path="/inpatients")
 @CrossOrigin(origins="*")
 public class InpatientRestController {
-    @Autowired InpatientQueryImpl queryRepo;
-    @Autowired InpatientServiceImpl serviceRepo;
+    @Autowired
+    InpatientQuery inpatientQuery;
+    @Autowired
+    InpatientService inpatientService;
 
     @GetMapping()
     public ResponseEntity<List<InpatientViewModel>> getInpatientsByStatus(@RequestParam(value = "status") String status) {
@@ -30,15 +30,15 @@ public class InpatientRestController {
             return new ResponseEntity<>(null, HttpStatus.CONFLICT);
         }
 
-        List<InpatientReadModel> readModels = queryRepo.generateInpatientReport(status_enum);
+        List<InpatientReadModel> readModels = inpatientQuery.generateInpatientReport(status_enum);
 
         return new ResponseEntity<>(readModels.stream().map(InpatientViewModel::new).collect(Collectors.toList()), HttpStatus.OK);
     }
 
     @PutMapping("/{id}/parentconsent")
-    public ResponseEntity<String> provideParentalConsentForInpatient(@PathVariable int id) {
-        Response res = serviceRepo.registerInpatientParentalConsent(id);
-        if (!res.getSuccessful()) {
+    public ResponseEntity<String> provideParentalConsentForInpatient(@PathVariable("id") String id) {
+        Response res = inpatientService.registerIntakeCompleted(id);
+        if (res.status == ResponseStatus.FAIL) {
             return new ResponseEntity<>(null, HttpStatus.CONFLICT);
         } else {
             return new ResponseEntity<>(null, HttpStatus.OK);
@@ -46,9 +46,9 @@ public class InpatientRestController {
     }
 
     @PutMapping("/{id}/dischargepermission")
-    public ResponseEntity<String> provideDischargePermission(@PathVariable int id, @RequestParam(value = "physicianId") String physicianId) {
-        Response res = serviceRepo.registerInpatientDischargePermission(id, physicianId);
-        if (!res.getSuccessful()) {
+    public ResponseEntity<String> provideDischargePermission(@PathVariable("id") String id, @RequestParam("physicianId") String physicianId) {
+        Response res = inpatientService.givePermissionToDismiss(id, physicianId);
+        if (res.status == ResponseStatus.FAIL) {
             return new ResponseEntity<>(null, HttpStatus.CONFLICT);
         } else {
             return new ResponseEntity<>(null, HttpStatus.OK);
@@ -56,9 +56,9 @@ public class InpatientRestController {
     }
 
     @PutMapping("/{id}/")
-    public ResponseEntity<String> provideDischargePermission(@PathVariable int id) {
-        Response res = serviceRepo.registerInpatientLAMA(id);
-        if (!res.getSuccessful()) {
+    public ResponseEntity<String> provideDischargePermission(@PathVariable String id) {
+        Response res = inpatientService.noteLeftAgainstMedicalAdvice(id);
+        if (res.status == ResponseStatus.FAIL) {
             return new ResponseEntity<>(null, HttpStatus.CONFLICT);
         } else {
             return new ResponseEntity<>(null, HttpStatus.OK);
